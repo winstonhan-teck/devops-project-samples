@@ -29,7 +29,7 @@ variables:
   appName: "fincostmgtpredevfuncapp"
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
-
+  
 - task: AzureFunctionApp@1 # Add this at the end of your file
   inputs:
     azureSubscription: "arm-fin-costmgt-predev"
