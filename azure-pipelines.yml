@@ -11,34 +11,49 @@ variables:
 pool:
   vmImage: ubuntu-latest # Use 'windows-latest' if you have Windows native +Node modules
   name: vmss-ado-hub-predev
-steps:
-- bash: |
-    if [ -f extensions.csproj ]
-    then
-        dotnet build extensions.csproj --output ./bin
-    fi
-    npm install 
-    npm run build --if-present
-    npm prune --production
-- task: ArchiveFiles@2
-  displayName: "Archive files"
-  inputs:
-    rootFolderOrFile: "$(System.DefaultWorkingDirectory)"
-    includeRootFolder: false
-    archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip'
-    artifactName: 'drop'
 
-- task: AzureFunctionApp@1 # Add this at the end of your file
-  inputs:
-    azureSubscription: $(azureSubscription)
-    appType: functionAppLinux # default is functionApp
-    appName: $(appName)
-    package: $(System.DefaultWorkingDirectory)/**/*.zip
-    #Uncomment the next lines to deploy to a deployment slot
-    #Note that deployment slots is not supported for Linux Dynamic SKU
-    #deployToSlotOrASE: true
-    #resourceGroupName: '<Resource Group Name>'
-    #slotName: '<Slot name>'
+stages:
+- stage: Build
+  pool:
+    vmImage: ubuntu-latest # Use 'windows-latest' if you have Windows native +Node modules
+    name: "Azure Pipelines"
+  jobs:
+  - job: BuildJob
+    steps:
+    - bash: |
+        if [ -f extensions.csproj ]
+        then
+            dotnet build extensions.csproj --output ./bin
+        fi
+        npm install 
+        npm run build --if-present
+        npm prune --production
+    - task: ArchiveFiles@2
+      displayName: "Archive files"
+      inputs:
+        rootFolderOrFile: "$(System.DefaultWorkingDirectory)"
+        includeRootFolder: false
+        archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip'
+        artifactName: 'drop'
+
+- stage: Deploy
+  pool:
+    vmImage: ubuntu-latest # Use 'windows-latest' if you have Windows native +Node modules
+    name: vmss-ado-hub-predev
+  jobs:
+  - job: DeployToAzure
+    steps:
+    - task: AzureFunctionApp@1 # Add this at the end of your file
+      inputs:
+        azureSubscription: $(azureSubscription)
+        appType: functionAppLinux # default is functionApp
+        appName: $(appName)
+        package: $(System.DefaultWorkingDirectory)/**/*.zip
+        #Uncomment the next lines to deploy to a deployment slot
+        #Note that deployment slots is not supported for Linux Dynamic SKU
+        #deployToSlotOrASE: true
+        #resourceGroupName: '<Resource Group Name>'
+        #slotName: '<Slot name>'
