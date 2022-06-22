@@ -42,7 +42,7 @@ stages:
   jobs:
   - job: DeployToAzure
     steps:
-    - download: current
+    - download: current  # Download Artifacts to current host
       artifact: drop
     - task: AzureFunctionApp@1 # Add this at the end of your file
       inputs:
