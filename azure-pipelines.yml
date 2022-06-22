@@ -10,7 +10,7 @@ variables:
   
 pool:
   vmImage: ubuntu-latest # Use 'windows-latest' if you have Windows native +Node modules
-  # PoolName: vmss-ado-hub-predev
+  Name: vmss-ado-hub-predev
 steps:
 - bash: |
     if [ -f extensions.csproj ]
