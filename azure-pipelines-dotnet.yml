@@ -5,7 +5,7 @@ trigger:
 variables:
   # Azure service connection established during pipeline creation
   azureSubscription: "arm-fin-costmgt-predev"
-  appName: "func-fin-costmgt-dev-038b"
+  appName: "cdmutil-fin-costmgt-predev"
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
